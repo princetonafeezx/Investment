@@ -14,4 +14,15 @@ _ZERO = Decimal(0)
 _ONE = Decimal(1)
 _PERCENT = Decimal(100)
 
-
+def _coerce_decimal(value: Any) -> Decimal:
+    if isinstance(value, Decimal):
+        return value
+    if isinstance(value, bool):
+        raise ValueError("boolean is not a numeric amount")
+    if isinstance(value, int):
+        return Decimal(value)
+    if isinstance(value, float):
+        return Decimal(str(value))
+    if isinstance(value, str):
+        return Decimal(value.strip())
+    raise ValueError("unsupported type for Decimal")
