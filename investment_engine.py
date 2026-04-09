@@ -90,3 +90,27 @@ def default_scenario(name: str = "Starter") -> InvestmentScenario:
             "inflation_rate": Decimal("2.5"),
         },
     )
+
+def scenario_from_storage(storage_key: str, data: Mapping[str, Any]) -> InvestmentScenario | None:
+    try:
+        base = default_scenario(name=str(data.get("name", storage_key)))
+        merged: dict[str, Any] = dict(base)
+        for k in base:
+            if k in data:
+                merged[k] = data[k]
+        merged["name"] = str(data.get("name", storage_key)).strip() or str(storage_key)
+        merged["initial_principal"] = _coerce_decimal(merged["initial_principal"])
+        merged["annual_rate"] = _coerce_decimal(merged["annual_rate"])
+        merged["years"] = int(merged["years"])
+        merged["contribution_amount"] = _coerce_decimal(merged["contribution_amount"])
+        merged["inflation_rate"] = _coerce_decimal(merged["inflation_rate"])
+        merged["compounding"] = str(merged["compounding"]).strip().lower()
+        merged["contribution_frequency"] = str(merged["contribution_frequency"]).strip().lower()
+        merged["contribution_timing"] = str(merged["contribution_timing"]).strip().lower()
+    except (InvalidOperation, TypeError, ValueError):
+        return None
+    errors = validate_scenario(merged)
+    if errors:
+        return None
+    return cast(InvestmentScenario, merged)
+
