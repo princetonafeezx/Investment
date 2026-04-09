@@ -114,3 +114,17 @@ def scenario_from_storage(storage_key: str, data: Mapping[str, Any]) -> Investme
         return None
     return cast(InvestmentScenario, merged)
 
+def contribution_for_period(
+    scenario: Mapping[str, Any], period_index: int, periods_per_year: int
+) -> Decimal:
+    frequency = scenario["contribution_frequency"]
+    amount = _coerce_decimal(scenario["contribution_amount"])
+    if frequency == "monthly":
+        if periods_per_year == 12:
+            return amount
+        return amount * Decimal(12)
+    if frequency == "annual":
+        if periods_per_year == 12:
+            return amount if period_index == 1 else _ZERO
+        return amount
+    return _ZERO
