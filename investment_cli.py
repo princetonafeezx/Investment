@@ -11,3 +11,17 @@ from schemas import InvestmentScenario
 def prompt_with_default(prompt: str, default_value: str) -> str:
     entered = input(f"{prompt} [{default_value}]: ").strip()
     return entered if entered else default_value
+
+def _parse_decimal_field(label: str, raw: str) -> Decimal | None:
+    try:
+        return Decimal(raw.strip())
+    except (InvalidOperation, ValueError, TypeError):
+        print(f"{label} must be a valid number (got {raw!r}).")
+        return None
+
+def _parse_years_field(label: str, raw: str) -> int | None:
+    try:
+        return int(raw, 10)
+    except ValueError:
+        print(f"{label} must be a whole number (got {raw!r}).")
+        return None
