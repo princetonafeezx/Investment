@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ll-investment/schema/persisted_scenarios_v2.schema.json",
+  "title": "Persisted Investment Scenarios v2",
+  "description": "On-disk JSON structure written by investment_persist.save_persisted_scenarios.",
+  "type": "object",
+  "required": [
+    "__ll_investment__"
+  ],
+  "properties": {
+    "__ll_investment__": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version"
+      ],
+      "properties": {
+        "schema_version": {
+          "type": "integer",
+          "const": 2
+        }
+      }
+    }
+  },
+  "patternProperties": {
+    "^(?!__ll_investment__$).+$": {
+      "$ref": "./investment_scenario.schema.json"
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ll-investment/schema/investment_scenario.schema.json",
+  "title": "Investment Scenario",
+  "description": "A single investment scenario accepted by the LL Investment engine.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "name",
+    "initial_principal",
+    "annual_rate",
+    "years",
+    "compounding",
+    "contribution_amount",
+    "contribution_frequency",
+    "contribution_timing",
+    "inflation_rate"
+  ],
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "initial_principal": {
+      "description": "Decimal string recommended for storage; numeric input also allowed for compatibility.",
+      "oneOf": [
+        {
+          "type": "string",
+          "pattern": "^-?\\d+(\\.\\d+)?$"
+        },
+        {
+          "type": "number"
+        }
+      ]
+    },
+    "annual_rate": {
+      "oneOf": [
+        {
+          "type": "string",
+          "pattern": "^-?\\d+(\\.\\d+)?$"
+        },
+        {
+          "type": "number"
+        }
+      ]
+    },
+    "years": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "compounding": {
+      "type": "string",
+      "enum": [
+        "monthly",
+        "annual"
+      ]
+    },
+    "contribution_amount": {
+      "oneOf": [
+        {
+          "type": "string",
+          "pattern": "^-?\\d+(\\.\\d+)?$"
+        },
+        {
+          "type": "number"
+        }
+      ]
+    },
+    "contribution_frequency": {
+      "type": "string",
+      "enum": [
+        "monthly",
+        "annual"
+      ]
+    },
+    "contribution_timing": {
+      "type": "string",
+      "enum": [
+        "start",
+        "end"
+      ]
+    },
+    "inflation_rate": {
+      "oneOf": [
+        {
+          "type": "string",
+          "pattern": "^-?\\d+(\\.\\d+)?$"
+        },
+        {
+          "type": "number"
+        }
+      ]
+    }
+  }
+}

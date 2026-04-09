@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ll-investment/schema/projection_result.schema.json",
+  "title": "Projection Result",
+  "description": "Projection output produced by the LL Investment engine.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "scenario",
+    "rows",
+    "ending_balance",
+    "total_contributed",
+    "total_earned",
+    "real_ending_balance",
+    "purchasing_power_loss",
+    "warning"
+  ],
+  "properties": {
+    "scenario": {
+      "$ref": "./investment_scenario.schema.json"
+    },
+    "rows": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ProjectionYearRow"
+      }
+    },
+    "ending_balance": {
+      "type": "string",
+      "pattern": "^-?\\d+(\\.\\d+)?$"
+    },
+    "total_contributed": {
+      "type": "string",
+      "pattern": "^-?\\d+(\\.\\d+)?$"
+    },
+    "total_earned": {
+      "type": "string",
+      "pattern": "^-?\\d+(\\.\\d+)?$"
+    },
+    "real_ending_balance": {
+      "type": "string",
+      "pattern": "^-?\\d+(\\.\\d+)?$"
+    },
+    "purchasing_power_loss": {
+      "type": "string",
+      "pattern": "^-?\\d+(\\.\\d+)?$"
+    },
+    "warning": {
+      "type": "string"
+    }
+  },
+  "$defs": {
+    "ProjectionYearRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "year",
+        "starting_balance",
+        "contributions",
+        "interest_earned",
+        "ending_balance",
+        "real_balance",
+        "principal_portion",
+        "interest_portion"
+      ],
+      "properties": {
+        "year": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "starting_balance": {
+          "type": "string",
+          "pattern": "^-?\\d+(\\.\\d+)?$"
+        },
+        "contributions": {
+          "type": "string",
+          "pattern": "^-?\\d+(\\.\\d+)?$"
+        },
+        "interest_earned": {
+          "type": "string",
+          "pattern": "^-?\\d+(\\.\\d+)?$"
+        },
+        "ending_balance": {
+          "type": "string",
+          "pattern": "^-?\\d+(\\.\\d+)?$"
+        },
+        "real_balance": {
+          "type": "string",
+          "pattern": "^-?\\d+(\\.\\d+)?$"
+        },
+        "principal_portion": {
+          "type": "string",
+          "pattern": "^-?\\d+(\\.\\d+)?$"
+        },
+        "interest_portion": {
+          "type": "string",
+          "pattern": "^-?\\d+(\\.\\d+)?$"
+        }
+      }
+    }
+  }
+}
