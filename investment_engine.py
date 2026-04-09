@@ -128,3 +128,83 @@ def contribution_for_period(
             return amount if period_index == 1 else _ZERO
         return amount
     return _ZERO
+
+def project_scenario(scenario: Mapping[str, Any]) -> ProjectionResult:
+    errors = validate_scenario(scenario)
+    if errors:
+        raise ValueError(" | ".join(errors))
+
+    years = int(scenario["years"])
+    balance = _coerce_decimal(scenario["initial_principal"])
+    annual_rate = _coerce_decimal(scenario["annual_rate"]) / _PERCENT
+    inflation_rate = _coerce_decimal(scenario["inflation_rate"]) / _PERCENT
+    periods_per_year = 12 if scenario["compounding"] == "monthly" else 1
+    contribution_timing = scenario["contribution_timing"]
+    periods_dec = Decimal(periods_per_year)
+
+    rows: list[ProjectionYearRow] = []
+    running_contributions = _ZERO
+    total_interest = _ZERO
+    initial_principal = _coerce_decimal(scenario["initial_principal"])
+    annual_rate_pct = _coerce_decimal(scenario["annual_rate"])
+
+    for year_number in range(1, years + 1):
+        year_start_balance = balance
+        year_contributions = _ZERO
+        year_interest = _ZERO
+
+        for period_index in range(1, periods_per_year + 1):
+            contribution = contribution_for_period(scenario, period_index, periods_per_year)
+            if contribution_timing == "start":
+                balance += contribution
+                year_contributions += contribution
+
+            period_rate = annual_rate / periods_dec
+            interest = balance * period_rate
+            balance += interest
+            year_interest += interest
+
+            if contribution_timing == "end":
+                balance += contribution
+                year_contributions += contribution
+
+        running_contributions += year_contributions
+        total_interest += year_interest
+
+        inflation_factor = (_ONE + inflation_rate) ** year_number if inflation_rate > 0 else _ONE
+        real_balance = balance / inflation_factor
+        principal_so_far = initial_principal + running_contributions
+
+        rows.append(
+            cast(
+                ProjectionYearRow,
+                {
+                    "year": year_number,
+                    "starting_balance": year_start_balance,
+                    "contributions": year_contributions,
+                    "interest_earned": year_interest,
+                    "ending_balance": balance,
+                    "real_balance": real_balance,
+                    "principal_portion": principal_so_far,
+                    "interest_portion": max(_ZERO, balance - principal_so_far),
+                },
+            )
+        )
+
+    return cast(
+        ProjectionResult,
+        {
+            "scenario": cast(InvestmentScenario, dict(scenario)),
+            "rows": rows,
+            "ending_balance": balance,
+            "total_contributed": initial_principal + running_contributions,
+            "total_earned": total_interest,
+            "real_ending_balance": rows[-1]["real_balance"] if rows else balance,
+            "purchasing_power_loss": balance - (rows[-1]["real_balance"] if rows else balance),
+            "warning": (
+                "High rate warning: annual rate is above 25%."
+                if annual_rate_pct > Decimal("25")
+                else ""
+            ),
+        },
+    )
