@@ -74,3 +74,19 @@ def validate_scenario(scenario: Mapping[str, Any]) -> list[str]:
         errors.append("Contribution timing must be start or end.")
 
     return errors
+
+def default_scenario(name: str = "Starter") -> InvestmentScenario:
+    return cast(
+        InvestmentScenario,
+        {
+            "name": name,
+            "initial_principal": Decimal("10000"),
+            "annual_rate": Decimal("7"),
+            "years": 20,
+            "compounding": "monthly",
+            "contribution_amount": Decimal("200"),
+            "contribution_frequency": "monthly",
+            "contribution_timing": "end",
+            "inflation_rate": Decimal("2.5"),
+        },
+    )
