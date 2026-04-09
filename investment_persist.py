@@ -27,3 +27,31 @@ def _scenario_to_storable(scenario: InvestmentScenario) -> dict[str, Any]:
     for key in _DECIMAL_FIELDS:
         out[key] = _decimal_to_json_str(out[key])
     return out
+
+def load_persisted_scenarios() -> dict[str, InvestmentScenario]:
+    raw = load_json(get_investment_profile_path(), default={})
+    meta = raw.get(META_KEY)
+    meta_version: int | None = None
+    if isinstance(meta, dict):
+        try:
+            meta_version = int(meta["schema_version"])
+        except (KeyError, TypeError, ValueError):
+            meta_version = None
+    if meta_version == SCHEMA_VERSION:
+        scenario_entries = {k: v for k, v in raw.items() if k != META_KEY}
+    else:
+        scenario_entries = dict(raw)
+
+    out: dict[str, InvestmentScenario] = {}
+    for key, val in scenario_entries.items():
+        if key == META_KEY:
+            continue
+        if not isinstance(val, dict):
+            print(f"Skipped non-object scenario entry {key!r}.")
+            continue
+        scenario = scenario_from_storage(str(key), val)
+        if scenario is None:
+            print(f"Skipped invalid scenario stored under {key!r}.")
+            continue
+        out[scenario["name"]] = scenario
+    return out
