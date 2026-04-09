@@ -22,3 +22,8 @@ def _decimal_to_json_str(d: Decimal) -> str:
     q = d.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
     return format(q, "f")
 
+def _scenario_to_storable(scenario: InvestmentScenario) -> dict[str, Any]:
+    out: dict[str, Any] = dict(scenario)
+    for key in _DECIMAL_FIELDS:
+        out[key] = _decimal_to_json_str(out[key])
+    return out
