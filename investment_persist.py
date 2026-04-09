@@ -55,3 +55,10 @@ def load_persisted_scenarios() -> dict[str, InvestmentScenario]:
             continue
         out[scenario["name"]] = scenario
     return out
+
+def save_persisted_scenarios(scenarios: Mapping[str, InvestmentScenario]) -> None:
+    payload: dict[str, Any] = {
+        META_KEY: {"schema_version": SCHEMA_VERSION},
+        **{name: _scenario_to_storable(scenario) for name, scenario in scenarios.items()},
+    }
+    save_json(payload, get_investment_profile_path())
