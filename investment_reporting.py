@@ -98,3 +98,35 @@ def compare_scenarios(scenarios: Mapping[str, InvestmentScenario]) -> str:
     lines.append(contributed_line)
     lines.append(earned_line)
     return "\n".join(lines)
+
+def build_growth_chart(result: ProjectionResult, width: int = 80) -> str:
+    rows = result["rows"]
+    if not rows:
+        return "No chart data available."
+
+    bar_width = max(20, width - 26)
+    max_balance = max(row["ending_balance"] for row in rows) or Decimal(1)
+    encoding = sys.stdout.encoding or "utf-8"
+    try:
+        "█".encode(encoding)
+        principal_char = "█"
+        interest_char = "░"
+    except (UnicodeEncodeError, LookupError, TypeError):
+        principal_char = "#"
+        interest_char = "."
+
+    legend = f"Legend: {principal_char} principal/contributions, {interest_char} growth"
+    lines = ["Growth chart", legend]
+    lines.append("-" * min(width, 80))
+    bar_dec = Decimal(bar_width)
+
+    for row in rows:
+        principal_width = int((row["principal_portion"] / max_balance) * bar_dec)
+        interest_width = int((row["interest_portion"] / max_balance) * bar_dec)
+        if principal_width + interest_width == 0:
+            principal_width = 1
+        bar = (principal_char * principal_width) + (interest_char * interest_width)
+        end_bal = format_money(row["ending_balance"])
+        lines.append(f"Year {row['year']:>2} {bar:<{bar_width}} {end_bal}")
+
+    return "\n".join(lines)
