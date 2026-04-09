@@ -1,0 +1,11 @@
+# Development dependencies for LL Investment (runtime is stdlib-only).
+#
+# Install:
+#   pip install -r requirements.txt
+#   pip install -e .
+#
+# Equivalent to: pip install -e ".[dev]"
+
+pytest>=7.0
+ruff>=0.4.0
+mypy>=1.8
