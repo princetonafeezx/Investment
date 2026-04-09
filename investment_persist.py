@@ -18,3 +18,7 @@ _DECIMAL_FIELDS = (
     "inflation_rate",
 )
 
+def _decimal_to_json_str(d: Decimal) -> str:
+    q = d.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+    return format(q, "f")
+
