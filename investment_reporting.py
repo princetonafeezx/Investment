@@ -58,3 +58,43 @@ def format_single_projection(result: ProjectionResult) -> str:
     lines.append(f"Purchasing power loss estimate: {format_money(result['purchasing_power_loss'])}")
     return "\n".join(lines)
 
+
+def compare_scenarios(scenarios: Mapping[str, InvestmentScenario]) -> str:
+    if not scenarios:
+        return "No scenarios are saved yet."
+    if len(scenarios) > 4:
+        return "Please compare four scenarios or fewer."
+
+    results: dict[str, ProjectionResult] = {}
+    max_years = 0
+    for name, scenario in scenarios.items():
+        results[name] = project_scenario(scenario)
+        max_years = max(max_years, int(scenario["years"]))
+
+    names = list(results)
+    lines = []
+    header = f"{'Year':<6}"
+    for name in names:
+        header += f"{name[:16]:>18}"
+    lines.append(header)
+    lines.append("-" * len(header))
+
+    for year_number in range(1, max_years + 1):
+        line = f"{year_number:<6}"
+        for name in names:
+            rows = results[name]["rows"]
+            if year_number <= len(rows):
+                line += f"{format_money(rows[year_number - 1]['ending_balance']):>18}"
+            else:
+                line += f"{'-':>18}"
+        lines.append(line)
+
+    lines.append("-" * len(header))
+    contributed_line = f"{'Contrib':<6}"
+    earned_line = f"{'Earned':<6}"
+    for name in names:
+        contributed_line += f"{format_money(results[name]['total_contributed']):>18}"
+        earned_line += f"{format_money(results[name]['total_earned']):>18}"
+    lines.append(contributed_line)
+    lines.append(earned_line)
+    return "\n".join(lines)
